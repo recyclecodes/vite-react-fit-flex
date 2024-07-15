@@ -21,7 +21,7 @@ const SuggestedVideos: React.FC<SuggestedVideosProps> = ({
   name,
 }) => {
   if (!suggestedVideos.length) return <PacmanLoader />;
-  console.log(suggestedVideos);
+
   return (
     <div className="mt-20 lg:mt-20 px-20 pb-12">
       <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8">

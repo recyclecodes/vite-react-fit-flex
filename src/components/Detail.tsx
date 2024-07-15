@@ -1,8 +1,7 @@
+import { FC } from 'react';
 import BodyPartImage from '../assets/icons/body-part.png';
 import TargetImage from '../assets/icons/target.png';
 import EquipmentImage from '../assets/icons/equipment.png';
-import { FC } from 'react';
-
 
 interface ExerciseDetail {
   bodyPart: string;
@@ -18,6 +17,7 @@ interface DetailProps {
 
 const Detail: FC<DetailProps> = ({ exerciseDetail }) => {
   const { bodyPart, gifUrl, name, target, equipment } = exerciseDetail;
+
   const iconDetail = [
     {
       icon: BodyPartImage,
@@ -32,6 +32,7 @@ const Detail: FC<DetailProps> = ({ exerciseDetail }) => {
       name: equipment,
     },
   ];
+
   return (
     <div className="container w-full flex lg:gap-48 flex-col lg:flex-row items-center pt-20 px-20">
       <img
@@ -55,7 +56,7 @@ const Detail: FC<DetailProps> = ({ exerciseDetail }) => {
             <button className="bg-gray-400 rounded-full w-14 h-14 flex items-center justify-center">
               <img
                 src={item.icon}
-                alt={bodyPart}
+                alt={item.name}
                 className="w-7 h-7 text-primary"
               />
             </button>

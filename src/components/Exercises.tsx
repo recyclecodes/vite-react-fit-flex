@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, FC } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ExerciseCard from './ExerciseCard';
 import {
   Pagination,
@@ -10,6 +10,12 @@ import {
 } from './ui/pagination';
 import { exerciseOptions, fetchData } from '@/lib/fetchData';
 
+interface BodyPart {
+  id: string;
+  name: string;
+  description: string;
+}
+
 interface Exercise {
   id: string;
   gifUrl: string;
@@ -18,31 +24,41 @@ interface Exercise {
   target: string;
 }
 
-interface BodyPart {
-  name: string;
-}
-
 interface ExercisesProps {
   exercises: Exercise[];
-  setExercises: (exercises: Exercise[]) => void;
-  bodyPart: BodyPart | string;
+  setExercises: React.Dispatch<React.SetStateAction<Exercise[]>>;
+  bodyPart: BodyPart;
 }
 
-const Exercises: FC<ExercisesProps> = ({ exercises, setExercises, bodyPart }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const exercisesPerPage = 12;
-  const resultsContainerRef = useRef<HTMLDivElement | null>(null);
+const Exercises: React.FC<ExercisesProps> = ({
+  exercises,
+  setExercises,
+  bodyPart,
+}) => {
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const exercisesPerPage: number = 12;
+  const resultsContainerRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const calculateIndexOfFirstExercise = (pageNumber: number, perPage: number): number =>
-    (pageNumber - 1) * perPage;
-  
-  const indexOfFirstExercise = calculateIndexOfFirstExercise(currentPage, exercisesPerPage);
-  const indexOfLastExercise = indexOfFirstExercise + exercisesPerPage;
-  const currentExercises = exercises.slice(indexOfFirstExercise, indexOfLastExercise);
+  const calculateIndexOfFirstExercise = (
+    pageNumber: number,
+    perPage: number
+  ): number => (pageNumber - 1) * perPage;
 
-  const totalPages = Math.ceil(exercises.length / exercisesPerPage);
+  const indexOfFirstExercise: number = calculateIndexOfFirstExercise(
+    currentPage,
+    exercisesPerPage
+  );
+  const indexOfLastExercise: number = indexOfFirstExercise + exercisesPerPage;
 
-  const handlePageChange = (pageNumber: number) => {
+  const currentExercises: Exercise[] = exercises.slice(
+    indexOfFirstExercise,
+    indexOfLastExercise
+  );
+
+  const totalPages: number = Math.ceil(exercises.length / exercisesPerPage);
+
+  const handlePageChange = (pageNumber: number): void => {
     if (pageNumber < 1 || pageNumber > totalPages) {
       return;
     }
@@ -58,27 +74,35 @@ const Exercises: FC<ExercisesProps> = ({ exercises, setExercises, bodyPart }) =>
 
   useEffect(() => {
     const fetchExercisesData = async () => {
-      let exercisesData: Exercise[] = [];
+      setLoading(true);
+      try {
+        let exercisesData: Exercise[] = [];
 
-      if (bodyPart === 'all') {
-        exercisesData = await fetchData(
-          'https://exercisedb.p.rapidapi.com/exercises?limit=12',
-          exerciseOptions
-        );
-      } else {
-        exercisesData = await fetchData(
-          `https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}?limit=50`,
-          exerciseOptions
-        );
+        if (bodyPart.id === 'all') {
+          exercisesData = await fetchData(
+            'https://exercisedb.p.rapidapi.com/exercises?limit=12',
+            exerciseOptions
+          );
+        } else {
+          exercisesData = await fetchData(
+            `https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart.name}?limit=50`,
+            exerciseOptions
+          );
+        }
+
+        setExercises(exercisesData);
+      } catch (error) {
+        console.error('Failed to fetch exercises:', error);
+        // Optionally, set state to indicate error or display error message
+      } finally {
+        setLoading(false);
       }
-
-      setExercises(exercisesData);
     };
 
     fetchExercisesData();
   }, [bodyPart, setExercises]);
 
-  const renderPagination = () => {
+  const renderPagination = (): JSX.Element | null => {
     if (totalPages <= 1) return null;
 
     return (
@@ -86,8 +110,9 @@ const Exercises: FC<ExercisesProps> = ({ exercises, setExercises, bodyPart }) =>
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              className={`cursor-pointer ${currentPage === 1 ? 'disabled-class' : ''}`}
+              className="cursor-pointer"
               onClick={() => handlePageChange(currentPage - 1)}
+              isActive={currentPage === 1}
             />
           </PaginationItem>
           {[...Array(totalPages)].map((_, index) => (
@@ -102,8 +127,9 @@ const Exercises: FC<ExercisesProps> = ({ exercises, setExercises, bodyPart }) =>
           ))}
           <PaginationItem>
             <PaginationNext
-              className={`cursor-pointer ${currentPage === totalPages ? 'disabled-class' : ''}`}
+              className="cursor-pointer"
               onClick={() => handlePageChange(currentPage + 1)}
+              isActive={currentPage === totalPages}
             />
           </PaginationItem>
         </PaginationContent>
@@ -113,15 +139,20 @@ const Exercises: FC<ExercisesProps> = ({ exercises, setExercises, bodyPart }) =>
 
   return (
     <div className="container mx-auto mt-8">
-      {exercises.length > 0 && (
+      {loading && <p className="text-center">Loading...</p>}
+      {exercises.length > 0 && !loading && (
         <>
-          <h1 className="text-2xl font-bold text-center mb-2">Discover Fit Flex</h1>
-          <p className="text-base text-center mb-6">Start with this Tailored Exercises</p>
+          <h1 className="text-2xl font-bold text-center mb-2">
+            Discover Fit Flex
+          </h1>
+          <p className="text-base text-center mb-6">
+            Start with these Tailored Exercises
+          </p>
           <div
             ref={resultsContainerRef}
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-12"
           >
-            {currentExercises.map((exercise, index) => (
+            {currentExercises.map((exercise: Exercise, index: number) => (
               <ExerciseCard key={index} exercise={exercise} />
             ))}
           </div>
