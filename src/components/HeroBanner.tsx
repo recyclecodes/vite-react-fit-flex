@@ -1,9 +1,7 @@
-// import { Button } from './ui/button';
+import LoopImage from '@/assets/LoopImage.svg';
 
 const HeroBanner = () => {
-  
   return (
-    
     <section className="bg-gray-900 text-primary-foreground pt-40 pb-6 md:pt-20 md:pb-8">
       <div className="container px-4 md:px-6 grid gap-6 md:grid-cols-2 items-center">
         <div className="space-y-4">
@@ -14,14 +12,13 @@ const HeroBanner = () => {
             Discover a wide range of exercises tailored to your fitness goals.
             Stay motivated and track your progress with our user-friendly app.
           </p>
-          {/* <Button className='text-primary' variant="outline">Get Started</Button> */}
         </div>
         <div>
           <img
             alt="Fitness App"
             className="w-full h-full object-cover"
             height="700"
-            src="/src/assets/LoopImage.svg"
+            src={LoopImage}
             style={{
               aspectRatio: '800/700',
               objectFit: 'contain',
