@@ -29,7 +29,7 @@ Before you begin, make sure you have Node.js and npm installed on your machine.
 1. **Clone the repository:**
 
    ```bash
-   git clone [<repository-url>](https://github.com/recyclecodes/vite-react-fit-flex)
+   git clone https://github.com/recyclecodes/vite-react-fit-flex
    cd vite-react-fit-flex
 2. **Install dependencies:**
 
